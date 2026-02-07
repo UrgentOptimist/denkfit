@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5C4033">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>DenkFit</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRGVua0ZpdCIsInNob3J0X25hbWUiOiJEZW5rRml0Iiwic3RhcnRfdXJsIjoiLi8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjRjVGMEVCIiwidGhlbWVfY29sb3IiOiIjNUM0MDMzIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHZpZXdCb3g9JzAgMCA1MTIgNTEyJz48cmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzEwMCcgZmlsbD0nJTIzNUM0MDMzJy8+PHRleHQgeD0nNTAlJScgeT0nNTUlJycgdGV4dC1hbmNob3I9J21pZGRsZScgZG9taW5hbnQtYmFzZWxpbmU9J21pZGRsZScgZm9udC1zaXplPSczMDAnPvCfp6A8L3RleHQ+PC9zdmc+Iiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#F5F0EB;--bg2:#EDE6DD;--text:#1A1210;--text2:#3D2E24;--accent:#5C4033;--accent2:#7A5C4F;--success:#2D6A4F;--error:#8B4513;--card:#FFFBF5;--shadow:0 2px 12px rgba(0,0,0,.08);--radius:16px;--fs:28px}
+html,body{height:100%;font-family:-apple-system,system-ui,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:var(--fs);line-height:1.4;overflow-x:hidden}
+button{font-family:inherit;font-size:inherit;border:none;cursor:pointer;-webkit-user-select:none;user-select:none}
+.screen{display:none;flex-direction:column;min-height:100vh;min-height:100dvh;padding:20px;padding-bottom:40px;animation:fadeIn .3s}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+h1{font-size:2.2em;color:var(--accent);text-align:center;margin:20px 0 4px}
+.subtitle{text-align:center;color:var(--text2);font-size:.85em;margin-bottom:24px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:500px;margin:0 auto;width:100%}
+.tile{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:140px;justify-content:center;border:2px solid transparent;transition:all .15s;font-size:.75em;color:var(--text2);font-weight:600}
+.tile:active{transform:scale(.96);border-color:var(--accent)}
+.tile .emoji{font-size:2.4em;line-height:1}
+.streak{text-align:center;margin-top:auto;padding-top:24px;font-size:.8em;color:var(--text2)}
+.settings-btn{position:absolute;top:20px;right:20px;background:none;color:var(--text2);font-size:1.4em;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.star-badge{position:absolute;top:20px;left:20px;font-size:1.6em;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.back-btn{background:var(--bg2);color:var(--text2);padding:12px 28px;border-radius:var(--radius);font-size:.8em;align-self:flex-start;margin-bottom:16px;min-height:52px;display:flex;align-items:center;gap:8px}
+.back-btn:active{background:var(--accent);color:#fff}
+.game-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;width:100%;max-width:500px;margin:0 auto}
+.game-title{font-size:1em;color:var(--accent);text-align:center;font-weight:700}
+.game-instruction{font-size:.8em;color:var(--text2);text-align:center;min-height:2.4em}
+.game-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%}
+.memory-card{background:var(--accent);color:#fff;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.8em;cursor:pointer;transition:all .3s;aspect-ratio:1;user-select:none}
+.memory-card.revealed,.memory-card.matched{background:var(--card);box-shadow:var(--shadow)}
+.memory-card.matched{opacity:.6}
+.memory-card:active{transform:scale(.94)}
+.num-display{font-size:3.5em;color:var(--accent);font-weight:700;min-height:1.5em;display:flex;align-items:center;justify-content:center}
+.num-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.num-btn{background:var(--card);box-shadow:var(--shadow);border-radius:var(--radius);width:80px;height:80px;font-size:1.4em;font-weight:700;color:var(--accent);transition:all .15s}
+.num-btn:active{background:var(--accent);color:#fff}
+.num-btn.selected{background:var(--accent2);color:#fff}
+.shape{border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:absolute}
+.shape.square{border-radius:var(--radius)}
+.shape.triangle{border-radius:0;background:transparent!important;width:0!important;height:0!important}
+.shape:active{transform:scale(.9)}
+.shape.correct{animation:popGood .4s}
+.shape.wrong{animation:shake .4s}
+@keyframes popGood{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.emoji-grid{display:grid;gap:6px;justify-content:center}
+.emoji-cell{display:flex;align-items:center;justify-content:center;background:var(--card);border-radius:12px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;aspect-ratio:1}
+.emoji-cell:active{transform:scale(.92)}
+.emoji-cell.correct-pick{background:#D4EDDA;animation:popGood .5s}
+.emoji-cell.wrong-pick{animation:shake .4s}
+.result-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn .2s}
+.result-box{background:var(--card);border-radius:24px;padding:32px;text-align:center;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.result-emoji{font-size:2.5em;margin-bottom:12px}
+.result-text{font-size:1em;color:var(--text);margin-bottom:8px;font-weight:600}
+.result-sub{font-size:.7em;color:var(--text2);margin-bottom:20px}
+.result-btn{background:var(--accent);color:#fff;padding:14px 36px;border-radius:var(--radius);font-size:.85em;font-weight:600;min-height:56px}
+.result-btn:active{background:var(--accent2)}
+.setting-group{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:12px;box-shadow:var(--shadow)}
+.setting-label{font-size:.8em;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.toggle{width:60px;height:34px;background:var(--bg2);border-radius:17px;position:relative;transition:background .2s}
+.toggle.on{background:var(--success)}
+.toggle::after{content:'';position:absolute;width:28px;height:28px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s}
+.toggle.on::after{transform:translateX(26px)}
+input[type=range]{width:100%;height:8px;-webkit-appearance:none;background:var(--bg2);border-radius:4px;outline:none;margin:8px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:32px;height:32px;background:var(--accent);border-radius:50%}
+.danger-btn{background:#D4A08A;color:var(--text);padding:14px;border-radius:var(--radius);width:100%;font-size:.8em;margin-top:16px}
+.danger-btn:active{background:var(--error);color:#fff}
+.shapes-area{position:relative;width:100%;aspect-ratio:1;max-width:400px;background:var(--bg2);border-radius:var(--radius);overflow:hidden}
+.timer-bar{height:6px;background:var(--accent);border-radius:3px;transition:width .1s linear;margin:8px 0}
+.level-indicator{font-size:.65em;color:var(--accent2);text-align:center}
+</style>
+</head>
+<body>
+
+<!-- HOME SCREEN -->
+<div id="home" class="screen active">
+  <div id="starBadge" class="star-badge" style="display:none">⭐</div>
+  <button class="settings-btn" onclick="showScreen('settings')">⚙️</button>
+  <h1>DenkFit</h1>
+  <p class="subtitle">Dein tägliches Gehirntraining 🧠</p>
+  <div class="tiles">
+    <button class="tile" onclick="startGame('memory')"><span class="emoji">🧩</span>Paare finden</button>
+    <button class="tile" onclick="startGame('numbers')"><span class="emoji">🔢</span>Zahlenfolgen</button>
+    <button class="tile" onclick="startGame('colors')"><span class="emoji">🎨</span>Farben tippen</button>
+    <button class="tile" onclick="startGame('different')"><span class="emoji">📸</span>Was ist anders?</button>
+  </div>
+  <div id="streakDisplay" class="streak"></div>
+</div>
+
+<!-- MEMORY GAME -->
+<div id="memoryScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('home')">← Zurück</button>
+  <div class="game-area">
+    <div class="game-title">🧩 Paare finden</div>
+    <div class="level-indicator" id="memoryLevel"></div>
+    <div class="game-instruction" id="memoryInstr">Finde alle Paare!</div>
+    <div class="game-grid" id="memoryGrid"></div>
+  </div>
+</div>
+
+<!-- NUMBERS GAME -->
+<div id="numbersScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('home')">← Zurück</button>
+  <div class="game-area">
+    <div class="game-title">🔢 Zahlenfolgen</div>
+    <div class="level-indicator" id="numbersLevel"></div>
+    <div class="game-instruction" id="numbersInstr"></div>
+    <div class="num-display" id="numDisplay"></div>
+    <div class="num-buttons" id="numButtons"></div>
+  </div>
+</div>
+
+<!-- COLORS GAME -->
+<div id="colorsScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('home')">← Zurück</button>
+  <div class="game-area">
+    <div class="game-title">🎨 Farben tippen</div>
+    <div class="level-indicator" id="colorsLevel"></div>
+    <div class="game-instruction" id="colorsInstr"></div>
+    <div class="timer-bar" id="colorsTimer" style="width:100%"></div>
+    <div class="shapes-area" id="shapesArea"></div>
+  </div>
+</div>
+
+<!-- DIFFERENT GAME -->
+<div id="differentScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('home')">← Zurück</button>
+  <div class="game-area">
+    <div class="game-title">📸 Was ist anders?</div>
+    <div class="level-indicator" id="differentLevel"></div>
+    <div class="game-instruction" id="differentInstr"></div>
+    <div class="timer-bar" id="differentTimer" style="width:100%"></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="screen">
+  <button class="back-btn" onclick="showScreen('home')">← Zurück</button>
+  <h1 style="font-size:1.4em;margin-bottom:20px">Einstellungen</h1>
+  <div class="setting-group">
+    <div class="setting-label">Sound <button id="soundToggle" class="toggle on" onclick="toggleSound()"></button></div>
+  </div>
+  <div class="setting-group">
+    <div class="setting-label">Schwierigkeit <button id="modeToggle" class="toggle" onclick="toggleMode()"></button></div>
+    <div style="font-size:.65em;color:var(--text2)" id="modeLabel">Automatisch</div>
+  </div>
+  <div id="manualSliders" style="display:none">
+    <div class="setting-group">
+      <div class="setting-label" style="font-size:.7em">🧩 Paare finden: <span id="memSliderVal">3</span></div>
+      <input type="range" min="1" max="5" value="3" oninput="setManualLevel('memory',this.value)">
+    </div>
+    <div class="setting-group">
+      <div class="setting-label" style="font-size:.7em">🔢 Zahlenfolgen: <span id="numSliderVal">3</span></div>
+      <input type="range" min="1" max="5" value="3" oninput="setManualLevel('numbers',this.value)">
+    </div>
+    <div class="setting-group">
+      <div class="setting-label" style="font-size:.7em">🎨 Farben tippen: <span id="colSliderVal">3</span></div>
+      <input type="range" min="1" max="5" value="3" oninput="setManualLevel('colors',this.value)">
+    </div>
+    <div class="setting-group">
+      <div class="setting-label" style="font-size:.7em">📸 Was ist anders?: <span id="difSliderVal">3</span></div>
+      <input type="range" min="1" max="5" value="3" oninput="setManualLevel('different',this.value)">
+    </div>
+  </div>
+  <button class="danger-btn" onclick="resetProgress()">Fortschritt zurücksetzen</button>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div id="resultOverlay" class="result-overlay" style="display:none">
+  <div class="result-box">
+    <div class="result-emoji" id="resultEmoji"></div>
+    <div class="result-text" id="resultText"></div>
+    <div class="result-sub" id="resultSub"></div>
+    <button class="result-btn" id="resultBtn" onclick="closeResult()">Weiter</button>
+  </div>
+</div>
+
+<script>
+// ============ STATE ============
+const DEFAULT_STATE = {
+  sound: true,
+  manualMode: false,
+  modules: {
+    memory:    { level:1, wins:0, losses:0, streak:0 },
+    numbers:   { level:1, wins:0, losses:0, streak:0 },
+    colors:    { level:1, wins:0, losses:0, streak:0 },
+    different: { level:1, wins:0, losses:0, streak:0 }
+  },
+  trainingDays: [],
+  lastTraining: null
+};
+
+let state;
+function loadState() {
+  try { state = JSON.parse(localStorage.getItem('denkfit')) || JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+  catch(e) { state = JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+  // ensure structure
+  if (!state.modules) state.modules = DEFAULT_STATE.modules;
+  ['memory','numbers','colors','different'].forEach(k => {
+    if (!state.modules[k]) state.modules[k] = { level:1, wins:0, losses:0, streak:0 };
+  });
+  if (!state.trainingDays) state.trainingDays = [];
+}
+function saveState() { localStorage.setItem('denkfit', JSON.stringify(state)); }
+loadState();
+
+// ============ AUDIO ============
+let audioCtx;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, dur, type='sine', vol=0.15) {
+  if (!state.sound) return;
+  const ctx = getAudio(), o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime + dur);
+}
+function playSuccess() {
+  if (!state.sound) return;
+  [0,.15,.3].forEach((t,i) => setTimeout(() => playTone([523,659,784][i],.4,'sine',.12), t*1000));
+  // applause-like noise
+  setTimeout(() => {
+    const ctx = getAudio();
+    for(let i=0;i<8;i++) setTimeout(() => {
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='square'; o.frequency.value=800+Math.random()*2000;
+      g.gain.setValueAtTime(0.02,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+.06);
+      o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.06);
+    }, i*50);
+  }, 500);
+}
+function playPartial() { playTone(523,.3,'sine',.12); }
+function playError() { playTone(220,.5,'sine',.08); }
+function playLevelUp() {
+  if (!state.sound) return;
+  [523,587,659,698,784,880,988,1047].forEach((f,i) =>
+    setTimeout(() => playTone(f,.25,'sine',.1), i*100));
+}
+
+// ============ SCREENS ============
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'home') updateHome();
+  if (id === 'settings') updateSettings();
+}
+
+function updateHome() {
+  const today = new Date().toISOString().slice(0,10);
+  const trainedToday = state.trainingDays.includes(today);
+  document.getElementById('starBadge').style.display = trainedToday ? 'block' : 'none';
+  // streak
+  let streak = 0;
+  const days = [...new Set(state.trainingDays)].sort().reverse();
+  if (days.length) {
+    let d = new Date(); d.setHours(0,0,0,0);
+    // if not trained today, start from yesterday
+    if (!trainedToday) d.setDate(d.getDate()-1);
+    for (let i=0; i<days.length; i++) {
+      const check = d.toISOString().slice(0,10);
+      if (days.includes(check)) { streak++; d.setDate(d.getDate()-1); }
+      else break;
+    }
+  }
+  const el = document.getElementById('streakDisplay');
+  el.textContent = streak > 0 ? `${streak} Tag${streak>1?'e':''} in Folge trainiert! 🔥` : 'Starte dein erstes Training! 💪';
+}
+
+function updateSettings() {
+  document.getElementById('soundToggle').className = 'toggle' + (state.sound ? ' on' : '');
+  document.getElementById('modeToggle').className = 'toggle' + (state.manualMode ? ' on' : '');
+  document.getElementById('modeLabel').textContent = state.manualMode ? 'Manuell' : 'Automatisch';
+  document.getElementById('manualSliders').style.display = state.manualMode ? 'block' : 'none';
+  if (state.manualMode) {
+    const map = {memory:'mem',numbers:'num',colors:'col',different:'dif'};
+    Object.entries(map).forEach(([k,pre]) => {
+      document.getElementById(pre+'SliderVal').textContent = state.modules[k].level;
+      const slider = document.querySelector(`#manualSliders input[oninput*="${k}"]`);
+      if (slider) slider.value = state.modules[k].level;
+    });
+  }
+}
+function toggleSound() { state.sound = !state.sound; saveState(); updateSettings(); }
+function toggleMode() { state.manualMode = !state.manualMode; saveState(); updateSettings(); }
+function setManualLevel(mod, val) {
+  state.modules[mod].level = parseInt(val);
+  saveState(); updateSettings();
+}
+function resetProgress() {
+  if (confirm('Wirklich allen Fortschritt löschen?')) {
+    localStorage.removeItem('denkfit');
+    loadState(); saveState(); updateSettings();
+  }
+}
+
+function recordTraining() {
+  const today = new Date().toISOString().slice(0,10);
+  if (!state.trainingDays.includes(today)) state.trainingDays.push(today);
+  state.lastTraining = today;
+  saveState();
+}
+
+function adaptLevel(mod, success) {
+  const m = state.modules[mod];
+  if (success) { m.wins++; m.streak++; m.losses = 0; }
+  else { m.losses++; m.streak = 0; m.wins = 0; }
+  if (!state.manualMode) {
+    if (m.wins >= 2 && m.level < 5) { m.level++; m.wins = 0; playLevelUp(); }
+    if (m.losses >= 2 && m.level > 1) { m.level--; m.losses = 0; }
+  }
+  saveState();
+}
+
+// ============ RESULT ============
+let resultCallback;
+function showResult(success, mod) {
+  const successMsgs = ['Wunderbar! 👏','Super gemacht! 🌟','Toll, weiter so! 💪','Großartig! 🎉','Perfekt! ⭐'];
+  const failMsgs = ['Fast geschafft! Nochmal? 💪','Kein Problem, probier\'s nochmal! 😊','Gleich klappt\'s! 🌱','Versuch es noch einmal! 💫'];
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+  document.getElementById('resultEmoji').textContent = success ? '🎉' : '💪';
+  document.getElementById('resultText').textContent = pick(success ? successMsgs : failMsgs);
+  document.getElementById('resultSub').textContent = `Stufe ${state.modules[mod].level} von 5`;
+  document.getElementById('resultOverlay').style.display = 'flex';
+  if (success) playSuccess(); else playError();
+  recordTraining();
+  adaptLevel(mod, success);
+  resultCallback = () => startGame(mod);
+}
+function closeResult() {
+  document.getElementById('resultOverlay').style.display = 'none';
+  if (resultCallback) resultCallback();
+}
+
+function getLevel(mod) { return state.modules[mod].level; }
+
+// ============ GAME: MEMORY ============
+let memoryCards, memoryRevealed, memoryMatched, memoryLocked;
+function startGame(mod) {
+  showScreen(mod + 'Screen');
+  if (mod === 'memory') initMemory();
+  else if (mod === 'numbers') initNumbers();
+  else if (mod === 'colors') initColors();
+  else if (mod === 'different') initDifferent();
+}
+
+function initMemory() {
+  const lvl = getLevel('memory');
+  const pairCount = [2,3,4,5,6][lvl-1]; // 4,6,8,10,12 cards
+  const allEmoji = ['🐶','🐱','🐸','🌻','🍎','🍊','🚗','⭐','🎈','🏠','🌈','🐟','🦋','🍕','📚','🎵'];
+  const chosen = allEmoji.sort(() => Math.random()-.5).slice(0, pairCount);
+  memoryCards = [...chosen, ...chosen].sort(() => Math.random()-.5);
+  memoryRevealed = []; memoryMatched = []; memoryLocked = false;
+  document.getElementById('memoryLevel').textContent = `Stufe ${lvl}`;
+  const grid = document.getElementById('memoryGrid');
+  const cardSize = Math.max(60, Math.min(120, 300 / Math.ceil(Math.sqrt(memoryCards.length))));
+  grid.innerHTML = memoryCards.map((e,i) =>
+    `<div class="memory-card" style="width:${cardSize}px;height:${cardSize}px;font-size:${cardSize*.5}px" data-i="${i}" onclick="flipCard(${i})">?</div>`
+  ).join('');
+}
+function flipCard(i) {
+  if (memoryLocked || memoryRevealed.includes(i) || memoryMatched.includes(i)) return;
+  playPartial();
+  const cards = document.querySelectorAll('#memoryGrid .memory-card');
+  cards[i].textContent = memoryCards[i];
+  cards[i].classList.add('revealed');
+  memoryRevealed.push(i);
+  if (memoryRevealed.length === 2) {
+    memoryLocked = true;
+    const [a,b] = memoryRevealed;
+    if (memoryCards[a] === memoryCards[b]) {
+      memoryMatched.push(a,b);
+      cards[a].classList.add('matched');
+      cards[b].classList.add('matched');
+      memoryRevealed = []; memoryLocked = false;
+      if (memoryMatched.length === memoryCards.length) {
+        setTimeout(() => showResult(true, 'memory'), 400);
+      }
+    } else {
+      setTimeout(() => {
+        cards[a].textContent = '?'; cards[a].classList.remove('revealed');
+        cards[b].textContent = '?'; cards[b].classList.remove('revealed');
+        memoryRevealed = []; memoryLocked = false;
+      }, 800);
+    }
+  }
+}
+
+// ============ GAME: NUMBERS ============
+let numSequence, numInput, numPhase;
+function initNumbers() {
+  const lvl = getLevel('numbers');
+  const len = lvl + 1; // 2-6
+  numSequence = [];
+  const pool = [1,2,3,4,5,6,7,8,9];
+  while (numSequence.length < len) {
+    const n = pool[Math.floor(Math.random()*pool.length)];
+    if (!numSequence.includes(n)) numSequence.push(n);
+  }
+  numInput = []; numPhase = 'show';
+  document.getElementById('numbersLevel').textContent = `Stufe ${lvl}`;
+  document.getElementById('numbersInstr').textContent = 'Merke dir die Zahlen!';
+  document.getElementById('numButtons').innerHTML = '';
+  // show sequence
+  const display = document.getElementById('numDisplay');
+  display.textContent = '';
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i < numSequence.length) {
+      display.textContent = numSequence[i];
+      playTone(400 + numSequence[i]*50, .2);
+      i++;
+    } else {
+      clearInterval(iv);
+      display.textContent = '?';
+      numPhase = 'input';
+      document.getElementById('numbersInstr').textContent = 'Tippe die Zahlen in der richtigen Reihenfolge!';
+      showNumButtons();
+    }
+  }, 900);
+}
+function showNumButtons() {
+  const nums = [...new Set([...numSequence, ...Array.from({length:3},()=>Math.floor(Math.random()*9)+1)])].sort(()=>Math.random()-.5).slice(0,Math.max(numSequence.length+2,5));
+  // ensure all sequence numbers are in
+  numSequence.forEach(n => { if (!nums.includes(n)) nums.push(n); });
+  nums.sort((a,b)=>a-b);
+  document.getElementById('numButtons').innerHTML = nums.map(n =>
+    `<button class="num-btn" onclick="pickNum(${n},this)">${n}</button>`
+  ).join('');
+}
+function pickNum(n, el) {
+  if (numPhase !== 'input') return;
+  const expected = numSequence[numInput.length];
+  if (n === expected) {
+    playPartial();
+    el.classList.add('selected');
+    el.style.pointerEvents = 'none';
+    numInput.push(n);
+    document.getElementById('numDisplay').textContent = numInput.join(' ');
+    if (numInput.length === numSequence.length) {
+      numPhase = 'done';
+      setTimeout(() => showResult(true, 'numbers'), 400);
+    }
+  } else {
+    numPhase = 'done';
+    document.getElementById('numDisplay').textContent = numSequence.join(' ');
+    document.getElementById('numbersInstr').textContent = 'Die richtige Reihenfolge war:';
+    setTimeout(() => showResult(false, 'numbers'), 1200);
+  }
+}
+
+// ============ GAME: COLORS ============
+let colorTargets, colorFound, colorTotal, colorsTimer;
+function initColors() {
+  const lvl = getLevel('colors');
+  clearInterval(colorsTimer);
+  const shapes = ['circle','square'];
+  const colors = [
+    {name:'roten',css:'#C0392B'},{name:'blauen',css:'#2471A3'},
+    {name:'grünen',css:'#27AE60'},{name:'gelben',css:'#D4AC0D'}
+  ];
+  const targetShape = shapes[Math.floor(Math.random()*shapes.length)];
+  const targetColor = colors[Math.floor(Math.random()*colors.length)];
+  const shapeName = targetShape === 'circle' ? 'Kreise' : 'Quadrate';
+  const totalShapes = [5,8,12,16,20][lvl-1];
+  const targetCount = Math.max(2, Math.floor(totalShapes * .3));
+
+  document.getElementById('colorsLevel').textContent = `Stufe ${lvl}`;
+  document.getElementById('colorsInstr').textContent = `Tippe alle ${targetColor.name} ${shapeName}!`;
+
+  const area = document.getElementById('shapesArea');
+  area.innerHTML = '';
+  const size = Math.max(40, 70 - lvl*6);
+  colorTargets = 0; colorFound = 0; colorTotal = targetCount;
+  const placed = [];
+
+  for (let i = 0; i < totalShapes; i++) {
+    const isTarget = i < targetCount;
+    const c = isTarget ? targetColor : colors.filter(x=>x!==targetColor)[Math.floor(Math.random()*(colors.length-1))];
+    const s = isTarget ? targetShape : shapes[Math.floor(Math.random()*shapes.length)];
+    // find position
+    let x,y,tries=0;
+    do { x=Math.random()*(100-size/4); y=Math.random()*(100-size/4); tries++; }
+    while (tries<50 && placed.some(p=>Math.abs(p.x-x)<12&&Math.abs(p.y-y)<12));
+    placed.push({x,y});
+    const div = document.createElement('div');
+    div.className = 'shape' + (s==='square'?' square':'');
+    div.style.cssText = `width:${size}px;height:${size}px;background:${c.css};left:${x}%;top:${y}%`;
+    div.dataset.target = isTarget ? '1' : '0';
+    div.onclick = function() { tapShape(this); };
+    area.appendChild(div);
+  }
+  // timer
+  let timeLeft = [30,25,20,15,12][lvl-1];
+  const timerEl = document.getElementById('colorsTimer');
+  timerEl.style.width = '100%';
+  colorsTimer = setInterval(() => {
+    timeLeft -= .1;
+    timerEl.style.width = Math.max(0,timeLeft/[30,25,20,15,12][lvl-1]*100)+'%';
+    if (timeLeft <= 0) {
+      clearInterval(colorsTimer);
+      showResult(false, 'colors');
+    }
+  }, 100);
+}
+function tapShape(el) {
+  if (el.dataset.done) return;
+  el.dataset.done = '1';
+  if (el.dataset.target === '1') {
+    el.classList.add('correct');
+    playPartial();
+    colorFound++;
+    if (colorFound >= colorTotal) {
+      clearInterval(colorsTimer);
+      setTimeout(() => showResult(true, 'colors'), 300);
+    }
+  } else {
+    el.classList.add('wrong');
+    playError();
+  }
+}
+
+// ============ GAME: DIFFERENT ============
+let diffGrid, diffChanged, diffTimer, diffPhase2;
+function initDifferent() {
+  const lvl = getLevel('different');
+  clearTimeout(diffTimer);
+  const gridSize = [2,2,3,3,4][lvl-1]; // 2x2 to 4x4
+  const showTime = [7,6,5,4,3][lvl-1] * 1000;
+  const emojis = ['🐶','🐱','🌻','🍎','🚗','⭐','🎈','🏠','🌈','🐟','🦋','🍕','📚','🎵','🌙','🍀'];
+  const total = gridSize * gridSize;
+  const pool = emojis.sort(() => Math.random()-.5).slice(0, total);
+  diffGrid = [...pool];
+  diffChanged = Math.floor(Math.random() * total);
+  diffPhase2 = false;
+
+  document.getElementById('differentLevel').textContent = `Stufe ${lvl}`;
+  document.getElementById('differentInstr').textContent = 'Merke dir das Bild!';
+
+  const cellSize = Math.max(50, Math.min(90, 320/gridSize));
+  renderEmojiGrid(gridSize, cellSize, false);
+
+  // timer bar
+  const timerEl = document.getElementById('differentTimer');
+  timerEl.style.width = '100%';
+  let elapsed = 0;
+  const iv = setInterval(() => {
+    elapsed += 50;
+    timerEl.style.width = Math.max(0, (1 - elapsed/showTime)*100)+'%';
+    if (elapsed >= showTime) clearInterval(iv);
+  }, 50);
+
+  diffTimer = setTimeout(() => {
+    // swap one emoji
+    const replacement = emojis.filter(e => e !== diffGrid[diffChanged]).sort(()=>Math.random()-.5)[0];
+    diffGrid[diffChanged] = replacement;
+    diffPhase2 = true;
+    document.getElementById('differentInstr').textContent = 'Was hat sich verändert? Tippe darauf!';
+    timerEl.style.width = '100%';
+    renderEmojiGrid(gridSize, cellSize, true);
+  }, showTime);
+}
+function renderEmojiGrid(size, cellSize, clickable) {
+  const grid = document.getElementById('emojiGrid');
+  grid.style.gridTemplateColumns = `repeat(${size},${cellSize}px)`;
+  grid.innerHTML = diffGrid.map((e,i) =>
+    `<div class="emoji-cell" style="width:${cellSize}px;height:${cellSize}px;font-size:${cellSize*.55}px" ${clickable?`onclick="pickDiff(${i},this)"`:''}">${e}</div>`
+  ).join('');
+}
+function pickDiff(i, el) {
+  if (!diffPhase2) return;
+  diffPhase2 = false;
+  if (i === diffChanged) {
+    el.classList.add('correct-pick');
+    setTimeout(() => showResult(true, 'different'), 400);
+  } else {
+    el.classList.add('wrong-pick');
+    // highlight correct
+    document.querySelectorAll('#emojiGrid .emoji-cell')[diffChanged].classList.add('correct-pick');
+    setTimeout(() => showResult(false, 'different'), 800);
+  }
+}
+
+// ============ INIT ============
+updateHome();
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
